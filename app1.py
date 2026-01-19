@@ -9,10 +9,10 @@ st.set_page_config(page_title="Loan Approval System", page_icon="🏦")
 @st.cache_resource
 def load_model():
     try:
-        with open("model.pkl", "rb") as f:
+        with open("modelo_svc.pkl", "rb") as f:
             return pickle.load(f)
     except FileNotFoundError:
-        st.error("Error: No se encontró el archivo 'model.pkl'. Entrena el modelo primero.")
+        st.error("Error: No se encontró el archivo 'modelo_svc.pkl'. Entrena el modelo primero.")
         return None
 
 model = load_model()
