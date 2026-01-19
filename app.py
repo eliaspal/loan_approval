@@ -3,7 +3,7 @@ import pandas as pd
 import joblib
 
 # 1. Configuración de la página (esto profesionaliza el MVP)
-st.set_page_config(page_title="Loan Approval System", page_icon="🏦")
+st.set_page_config(page_title="Sistema de aprobación de préstamos", page_icon="🏦")
 
 # 2. Carga del modelo (Manejo de errores básico)
 @st.cache_resource
@@ -12,6 +12,9 @@ def load_model():
         return joblib.load("modelo_svc.pkl")
     except FileNotFoundError:
         st.error("Error: No se encontró el archivo 'modelo_svc.pkl'. Entrena el modelo primero.")
+        return None
+    except Exception as e:
+        st.error(f"Error al cargar el modelo: {e}")
         return None
 
 model = load_model()
@@ -43,12 +46,6 @@ if st.button("📊 Analizar Solicitud", use_container_width=True):
         # Mapeos necesarios para el modelo
         ch_map = {'Buen historial': 1.0, 'Mal historial': 0.0}
         lt_map = {'Corto Plazo': 0, 'Medio Plazo': 1, 'Largo Plazo': 2}
-        gen_map = {'Male': 1, 'Female': 0}
-        mar_map = {'Yes': 1, 'No': 0}
-        dep_map = {'0': 0, '1': 1, '2': 2, '3+': 3}
-        edu_map = {'Graduate': 1, 'Not Graduate': 0}
-        se_map = {'Yes': 1, 'No': 0}
-        pa_map = {'Rural': 0, 'Semiurban': 1, 'Urban': 2}
         
         input_df = pd.DataFrame([{
             'ApplicantIncome': applicant_income,
@@ -56,12 +53,12 @@ if st.button("📊 Analizar Solicitud", use_container_width=True):
             'LoanAmount': loan_amount,
             'Loan_Amount_Term': lt_map[loan_term],
             'Credit_History': ch_map[credit_history],
-            'Gender': gen_map[gender],
-            'Married': mar_map[married],
-            'Dependents': dep_map[dependents],
-            'Education': edu_map[education],
-            'Self_Employed': se_map[self_employed],
-            'Property_Area': pa_map[property_area]
+            'Gender': gender,
+            'Married': married,
+            'Dependents': dependents,
+            'Education': education,
+            'Self_Employed': self_employed,
+            'Property_Area': property_area
         }])
 
         prediction = model.predict(input_df)
@@ -72,4 +69,5 @@ if st.button("📊 Analizar Solicitud", use_container_width=True):
         else:
             st.error("❌ EL PRÉSTAMO HA SIDO RECHAZADO")
     else:
+
         st.warning("El modelo no está disponible.")
