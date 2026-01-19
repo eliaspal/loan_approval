@@ -2,50 +2,50 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-# 1. Configuración de la página (esto profesionaliza el MVP)
-st.set_page_config(page_title="Sistema de aprobación de préstamos", page_icon="🏦")
+# 1. Page Configuration
+st.set_page_config(page_title="Loan Approval System", page_icon="🏦")
 
-# 2. Carga del modelo (Manejo de errores básico)
+# 2. Model Loading
 @st.cache_resource
 def load_model():
     try:
         return joblib.load("modelo_svc.pkl")
     except FileNotFoundError:
-        st.error("Error: No se encontró el archivo 'modelo_svc.pkl'. Entrena el modelo primero.")
+        st.error("Error: 'modelo_svc.pkl' file not found. Please train the model first.")
         return None
     except Exception as e:
-        st.error(f"Error al cargar el modelo: {e}")
+        st.error(f"Error loading the model: {e}")
         return None
 
 model = load_model()
 
-# 3. Interfaz de Usuario (Limpia y directa)
-st.title("🏦 Sistema de Aprobación de Préstamos")
+# 3. User Interface
+st.title("🏦 Loan Approval Prediction System")
 st.markdown("---")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    gender = st.selectbox("Género", ['Male', 'Female'])
-    married = st.selectbox("¿Casado?", ['No', 'Yes'])
-    dependents = st.selectbox("Personas a cargo", ['0', '1', '2', '3+'])
-    education = st.selectbox("Nivel Educativo", ['Graduate', 'Not Graduate'])
-    self_employed = st.selectbox("Autónomo", ['No', 'Yes'])
+    gender = st.selectbox("Gender", ['Male', 'Female'])
+    married = st.selectbox("Married?", ['No', 'Yes'])
+    dependents = st.selectbox("Dependents", ['0', '1', '2', '3+'])
+    education = st.selectbox("Education Level", ['Graduate', 'Not Graduate'])
+    self_employed = st.selectbox("Self-Employed", ['No', 'Yes'])
 
 with col2:
-    applicant_income = st.number_input("Ingresos Solicitante ($)", min_value=0, value=5000)
-    coapplicant_income = st.number_input("Ingresos Co-solicitante ($)", min_value=0, value=0)
-    loan_amount = st.number_input("Monto del Préstamo (k$)", min_value=0, value=150)
-    loan_term = st.selectbox("Plazo del Préstamo", ['Corto Plazo', 'Medio Plazo', 'Largo Plazo'])
-    property_area = st.selectbox("Zona de Propiedad", ['Urban', 'Rural', 'Semiurban'])
-    credit_history = st.selectbox("Historial Crediticio", ['Buen historial', 'Mal historial'])
+    applicant_income = st.number_input("Applicant Income ($)", min_value=0, value=5000)
+    coapplicant_income = st.number_input("Co-applicant Income ($)", min_value=0, value=0)
+    loan_amount = st.number_input("Loan Amount (In thousands of dollars)", min_value=0, value=150)
+    loan_term = st.selectbox("Loan Term", ['Short Term', 'Medium Term', 'Long Term'])
+    property_area = st.selectbox("Property Area", ['Urban', 'Rural', 'Semiurban'])
+    credit_history = st.selectbox("Credit History", ['Good history', 'Poor history'])
 
-# 4. Procesamiento de entrada
-if st.button("📊 Analizar Solicitud", use_container_width=True):
+# 4. Input Processing
+if st.button("📊 Analyze Application", use_container_width=True):
     if model is not None:
-        # Mapeos necesarios para el modelo
-        ch_map = {'Buen historial': 1.0, 'Mal historial': 0.0}
-        lt_map = {'Corto Plazo': 0, 'Medio Plazo': 1, 'Largo Plazo': 2}
+        # Mapping for the model
+        ch_map = {'Good history': 1.0, 'Poor history': 0.0}
+        lt_map = {'Short Term': 0, 'Medium Term': 1, 'Long Term': 2}
         
         input_df = pd.DataFrame([{
             'ApplicantIncome': applicant_income,
@@ -63,11 +63,11 @@ if st.button("📊 Analizar Solicitud", use_container_width=True):
 
         prediction = model.predict(input_df)
         
-        st.markdown("### Resultado del Análisis:")
+        st.markdown("### Analysis Result:")
         if prediction[0] == 1:
-            st.success("✅ EL PRÉSTAMO HA SIDO APROBADO")
+            st.success("✅ THE LOAN HAS BEEN APPROVED")
         else:
-            st.error("❌ EL PRÉSTAMO HA SIDO RECHAZADO")
+            st.error("❌ THE LOAN HAS BEEN REJECTED")
     else:
+        st.warning("The model is not available.")
 
-        st.warning("El modelo no está disponible.")
