@@ -9,9 +9,9 @@ st.set_page_config(page_title="Loan Approval System", page_icon="🏦")
 @st.cache_resource
 def load_model():
     try:
-        return joblib.load("modelo_svc.pkl")
+        return joblib.load("modelo_final.pkl")
     except FileNotFoundError:
-        st.error("Error: 'modelo_svc.pkl' file not found. Please train the model first.")
+        st.error("Error: 'modelo_final.pkl' file not found. Please train the model first.")
         return None
     except Exception as e:
         st.error(f"Error loading the model: {e}")
@@ -70,4 +70,5 @@ if st.button("📊 Analyze Application", use_container_width=True):
             st.error("❌ THE LOAN HAS BEEN REJECTED")
     else:
         st.warning("The model is not available.")
+
 
